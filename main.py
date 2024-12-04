@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 # CSV dosyasını yükleyin
 pathName = "LidarData.csv"
@@ -15,10 +16,17 @@ for i in range(0, total_rows, windowSize):
     
     if len(window) == windowSize:
         is_blank = window.iloc[:, 103] == '  '
+        values = window.iloc[:,103].unique()
+        filtered_values = [val.strip() for val in values if val.strip() != '']
+        if(filtered_values is not []):
+            filename = f"{filtered_values}.csv" 
+
+            if os.path.exists(filename):
+                window.to_csv(filename, mode='a', index=False, header=False)
+            else:
+                window.to_csv(filename, index=False)
         
-        print(is_blank)
         if not is_blank.all():
             output_pd = pd.concat([output_pd, window], axis=0)
 
-# Sonuçları kaydet
-output_pd.to_csv("output.csv", index=False)
+
